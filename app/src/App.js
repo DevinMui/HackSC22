@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import "./App.css";
 import { AuthProvider, useAuth } from "./context/auth";
@@ -32,8 +33,12 @@ const RequireAuth = ({ children }) => {
   const auth = useAuth();
   const nav = useNavigate();
 
+  useEffect(() => {
+    if(!auth.user) 
+      nav("/login");
+  }, [])
+
   if (!auth.user) {
-    nav("/login");
     return <></>;
   } else {
     return children;
