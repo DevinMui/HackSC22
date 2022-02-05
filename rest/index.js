@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const repo = require("./repo");
 const Campaign = require("./models/campaign");
 const Sponsor = require("./models/sponsor");
 
@@ -54,7 +55,11 @@ app.get("/campaigns/:id", async (req, res, next) => {
       repoId: req.params.id,
     });
 
-    res.json(campaign);
+    const { rank } = await repo.rank({
+      path: campaign.path,
+    });
+
+    res.json({ ...campaign, rank });
   } catch (e) {
     next(e);
   }
@@ -62,7 +67,12 @@ app.get("/campaigns/:id", async (req, res, next) => {
 
 app.post("/campaigns", async (req, res, next) => {
   try {
-    const campaign = await new Campaign(req.body).save();
+    // is this inefficient? yes. do i care? no
+    const { path } = await repo.rank({
+      name: req.body.name,
+      url: req.body.url,
+    });
+    const campaign = await new Campaign({ ...req.body, path }).save();
     res.json(campaign);
   } catch (e) {
     next(e);
