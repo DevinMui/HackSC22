@@ -1,26 +1,26 @@
-import { createContext, useContext, useState } from "react";
-import { Octokit } from "https://cdn.skypack.dev/@octokit/rest";
-import { _getContributions, _getName, _getRepos } from "../api/github";
+import { createContext, useContext, useState } from 'react';
+import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest';
+import { _getContributions, _getName, _getRepos } from '../api/github';
 
 const AuthContext = createContext(null);
 
 const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
   // client not persisted thru localStorage but user token is
   const [client, setClient] = useState(
-    JSON.parse(localStorage.getItem("user")) &&
-      new Octokit({ auth: JSON.parse(localStorage.getItem("user")).token })
+    JSON.parse(localStorage.getItem('user')) &&
+      new Octokit({ auth: JSON.parse(localStorage.getItem('user')).token })
   );
 
   function login(token) {
     const _user = { token };
-    localStorage.setItem("user", JSON.stringify(_user));
+    localStorage.setItem('user', JSON.stringify(_user));
     setUser(_user);
     setClient(new Octokit({ auth: token }));
   }
 
   function logout() {
-    localStorage.removeItem("user");
+    localStorage.removeItem('user');
     setClient(null);
     setUser(null);
   }

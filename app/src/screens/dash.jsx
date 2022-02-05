@@ -1,10 +1,10 @@
-import React, { useEffect } from "react";
-import NavBar from "../components/common/NavBar";
-import { useAuth } from "../context/auth";
+import React, { useEffect } from 'react';
+import NavBar from '../components/common/NavBar';
+import { useAuth } from '../context/auth';
 
 const Dash = () => {
   const { getName, getRepos, getContributions } = useAuth();
-  const [name, setName] = React.useState("");
+  const [name, setName] = React.useState('');
   const [repos, setRepos] = React.useState([]);
 
   useEffect(() => {
@@ -15,8 +15,8 @@ const Dash = () => {
   }, []);
 
   useEffect(() => {
-    getContributions("aaronkh", "artemis").then((x) =>
-      console.log("contrib", x)
+    getContributions('aaronkh', 'artemis').then((x) =>
+      console.log('contrib', x)
     );
   }, []);
 
@@ -24,10 +24,10 @@ const Dash = () => {
     <>
       <NavBar />
       <div>hello {name}</div>
-      <div>{"-".repeat(20)}</div>
+      <div>{'-'.repeat(20)}</div>
       {repos.map((repo) => (
         <div key={repo.id}>
-          {repo.name} | ✏️{repo.language} | ✂️{repo.forks_count} | ⭐{" "}
+          {repo.name} | ✏️{repo.language} | ✂️{repo.forks_count} | ⭐{' '}
           {repo.stargazers_count} |
         </div>
       ))}

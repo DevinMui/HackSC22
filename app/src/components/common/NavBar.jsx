@@ -1,6 +1,6 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "../../context/auth";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/auth';
 
 const NavBar = () => {
   const auth = useAuth();
