@@ -1,11 +1,13 @@
+const fetch = require("node-fetch").default
 const express = require("express");
 const mongoose = require("mongoose");
+const repo = require("./repo");
 const Campaign = require("./models/campaign");
 const Sponsor = require("./models/sponsor");
 
 mongoose.connect("mongodb://localhost/hacksc22");
 
-const PORT = 3000;
+const PORT = 8080;
 const app = express();
 
 app.use(express.json());
@@ -54,7 +56,11 @@ app.get("/campaigns/:id", async (req, res, next) => {
       repoId: req.params.id,
     });
 
-    res.json(campaign);
+    const { rank } = await repo.rank({
+      path: campaign.path,
+    });
+
+    res.json({ ...campaign, rank });
   } catch (e) {
     next(e);
   }
@@ -62,7 +68,12 @@ app.get("/campaigns/:id", async (req, res, next) => {
 
 app.post("/campaigns", async (req, res, next) => {
   try {
-    const campaign = await new Campaign(req.body).save();
+    // is this inefficient? yes. do i care? no
+    const { path } = await repo.rank({
+      name: req.body.name,
+      url: req.body.url,
+    });
+    const campaign = await new Campaign({ ...req.body, path }).save();
     res.json(campaign);
   } catch (e) {
     next(e);
@@ -77,6 +88,16 @@ app.post("/campaigns/:id/sponsors", async (req, res) => {
   } catch (e) {
     next(e);
   }
+});
+
+app.post("/github/oauth", async (req, res) => {
+  const b = await fetch("https://github.com/login/oauth/access_token", {
+    headers: { Accept: "application/json", "Content-Type": "application/json" },
+    method: "POST",
+    body: JSON.stringify(req.body),
+  });
+  const json = await b.json();
+  res.send({ token: json.access_token });
 });
 
 // error handlers
