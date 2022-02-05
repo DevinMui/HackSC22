@@ -1,3 +1,4 @@
+const fetch = require("node-fetch");
 const express = require("express");
 const mongoose = require("mongoose");
 const Campaign = require("./models/campaign");
@@ -77,6 +78,16 @@ app.post("/campaigns/:id/sponsors", async (req, res) => {
   } catch (e) {
     next(e);
   }
+});
+
+app.post("/github/oauth", async (req, res) => {
+  const b = await fetch("https://github.com/login/oauth/access_token", {
+    headers: { Accept: "application/json" },
+    method: "POST",
+    body: JSON.stringify(req.body),
+  });
+  const json = await b.json();
+  res.send({ token: json.access_token });
 });
 
 // error handlers
