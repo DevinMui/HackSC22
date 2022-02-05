@@ -8,6 +8,7 @@ async function getCampaigns(type, id) {
       // explore
       return []; // List of popular repos
   }
+  return [];
 }
 
 async function getCampaign(id) {}
