@@ -1,4 +1,4 @@
-const fetch = require("node-fetch").default
+const fetch = require("node-fetch").default;
 const express = require("express");
 const mongoose = require("mongoose");
 const repo = require("./repo");
@@ -98,6 +98,17 @@ app.post("/github/oauth", async (req, res) => {
   });
   const json = await b.json();
   res.send({ token: json.access_token });
+});
+
+app.get("/github/contributions", async (req, res) => {
+  const url = `https://github.com/${req.query.owner}/${req.query.repo}/graphs/contributors-data`;
+  const b = await fetch(url, {
+    headers: { Accept: "application/json", "Content-Type": "application/json" },
+  });
+  const json = await b.json();
+  console.log(url);
+  console.log(JSON.stringify(json));
+  res.send(json);
 });
 
 // error handlers

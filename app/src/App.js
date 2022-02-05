@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import "./App.css";
-import NavBar from "./components/common/NavBar";
 import { AuthProvider, useAuth } from "./context/auth";
 import Dash from "./screens/dash";
 import GhRedirect from "./screens/ghRedirect";
@@ -35,7 +34,7 @@ const RequireAuth = ({ children }) => {
 
   if (!auth.user) {
     nav("/login");
-    return <></>
+    return <></>;
   } else {
     return children;
   }

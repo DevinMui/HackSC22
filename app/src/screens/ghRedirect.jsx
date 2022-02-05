@@ -6,9 +6,7 @@ import { useAuth } from "../context/auth";
 const GhRedirect = () => {
   const navigate = useNavigate();
   const auth = useAuth();
-  const [message, setMessage] = useState(
-    "Login unsuccessful, redirecting back to where you came from..."
-  );
+  const [message, setMessage] = useState("Logging you into GitPeanuts...");
   useEffect(() => {
     const url = window.location.href;
     const hasCode = url.includes("?code=");
@@ -16,9 +14,15 @@ const GhRedirect = () => {
       getToken(url.split("?code=")[1]).then((tok) => {
         setMessage("Login successful! Redirecting you to GitPeanuts...");
         auth.login(tok);
-        window.setTimeout(() => {
-          navigate("/");
-        }, 2000);
+        window
+          .setTimeout(() => {
+            navigate("/dash");
+          }, 2000)
+          .catch(() => {
+            setMessage("Login unsuccessful, redirecting...");
+            auth.logout();
+            window.setTimeout(() => navigate("/"), 2000);
+          });
       });
     } else {
       auth.logout();
