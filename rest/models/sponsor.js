@@ -1,16 +1,17 @@
 const mongoose = require("mongoose");
 
-const campaignSchema = mongoose.Schema(
+const subscriberSchema = mongoose.Schema(
   {
     repoId: {
       type: String,
       index: true,
     },
-    goal: Number,
+    userId: { type: String, index: true },
+    subscriptionId: { type: String, index: true },
   },
   {
     timestamps: true,
   }
 );
 
-module.exports = mongoose.model("Campaign", campaignSchema);
+module.exports = mongoose.model("Subscriber", subscriberSchema);
