@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getToken } from "../api/github";
 import { useAuth } from "../context/auth";
 
 const GhRedirect = () => {
@@ -12,27 +13,13 @@ const GhRedirect = () => {
     const url = window.location.href;
     const hasCode = url.includes("?code=");
     if (hasCode) {
-      // TODO: this goes in another server
-      fetch("https://github.com/login/oauth/access_token", {
-        headers: { Accept: "application/json" },
-        mode: "cors",
-        method: "POST",
-        body: JSON.stringify({
-          client_id: process.env.REACT_APP_GH_CLIENT_ID,
-          client_secret: process.env.REACT_APP_GH_CLIENT_SECRET,
-          code: url.split("?code=")[1],
-        }),
-      })
-        .then((res) => res.body)
-        .then((r) => r.json())
-        .then((json) => console.log(JSON.stringify(json)));
-      // end TODO
-
-      setMessage("Login successful! Redirecting you to GitPeanuts...");
-      auth.login(url.split("?code=")[1]); // Replace w actual token
-      window.setTimeout(() => {
-        navigate("/");
-      }, 2000);
+      getToken(url.split("?code=")[1]).then((tok) => {
+        setMessage("Login successful! Redirecting you to GitPeanuts...");
+        auth.login(tok);
+        window.setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      });
     } else {
       auth.logout();
       window.setTimeout(() => navigate(-2), 2000);
