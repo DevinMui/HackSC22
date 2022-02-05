@@ -1,8 +1,8 @@
 async function getCampaigns(type, id) {
   switch (type) {
-    case "highlights":
+    case 'highlights':
       return []; // List of popular + own
-    case "subscribed":
+    case 'subscribed':
       return []; // List of currently subscribed repos
     default:
       // explore

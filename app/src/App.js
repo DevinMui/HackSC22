@@ -1,10 +1,10 @@
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
-import "./App.css";
-import { AuthProvider, useAuth } from "./context/auth";
-import Dash from "./screens/dash";
-import GhRedirect from "./screens/ghRedirect";
-import Landing from "./screens/landing";
-import Login from "./screens/login";
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import './App.css';
+import { AuthProvider, useAuth } from './context/auth';
+import Dash from './screens/dash';
+import GhRedirect from './screens/ghRedirect';
+import Landing from './screens/landing';
+import Login from './screens/login';
 
 const App = () => (
   <AuthProvider>
@@ -33,7 +33,7 @@ const RequireAuth = ({ children }) => {
   const nav = useNavigate();
 
   if (!auth.user) {
-    nav("/login");
+    nav('/login');
     return <></>;
   } else {
     return children;

@@ -1,27 +1,27 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getToken } from "../api/github";
-import { useAuth } from "../context/auth";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getToken } from '../api/github';
+import { useAuth } from '../context/auth';
 
 const GhRedirect = () => {
   const navigate = useNavigate();
   const auth = useAuth();
-  const [message, setMessage] = useState("Logging you into GitPeanuts...");
+  const [message, setMessage] = useState('Logging you into GitPeanuts...');
   useEffect(() => {
     const url = window.location.href;
-    const hasCode = url.includes("?code=");
+    const hasCode = url.includes('?code=');
     if (hasCode) {
-      getToken(url.split("?code=")[1]).then((tok) => {
-        setMessage("Login successful! Redirecting you to GitPeanuts...");
+      getToken(url.split('?code=')[1]).then((tok) => {
+        setMessage('Login successful! Redirecting you to GitPeanuts...');
         auth.login(tok);
         window
           .setTimeout(() => {
-            navigate("/dash");
+            navigate('/dash');
           }, 2000)
           .catch(() => {
-            setMessage("Login unsuccessful, redirecting...");
+            setMessage('Login unsuccessful, redirecting...');
             auth.logout();
-            window.setTimeout(() => navigate("/"), 2000);
+            window.setTimeout(() => navigate('/'), 2000);
           });
       });
     } else {
