@@ -1,6 +1,7 @@
 const fetch = require("node-fetch").default;
 const express = require("express");
 const mongoose = require("mongoose");
+const stripe = require("stripe")(process.env.SECRET_KEY);
 const repo = require("./repo");
 const Campaign = require("./models/campaign");
 const Sponsor = require("./models/sponsor");
@@ -50,6 +51,14 @@ app.get("/", (req, res) => {
   res.send("hi");
 });
 
+app.get("/users/:id", async (req, res, next) => {
+  try {
+    await Sponsor.find({});
+  } catch (e) {
+    next(e);
+  }
+});
+
 app.get("/campaigns/:id", async (req, res, next) => {
   try {
     const campaign = await Campaign.findOne({
@@ -82,8 +91,35 @@ app.post("/campaigns", async (req, res, next) => {
 
 app.post("/campaigns/:id/sponsors", async (req, res) => {
   try {
-    // TODO: stripe stuff
-    const sponsor = await new Sponsor(req.body).save();
+    const amount = req.body.contribution;
+    const customer = await stripe.customers.create();
+    await stripe.paymentIntents.create({
+      customer: customer.id,
+      setup_future_usage: "off_session",
+      amount,
+      currency: "usd",
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
+
+    const price = await stripe.prices.create({
+      unit_amount: amount,
+      currency: "usd",
+      recurring: { interval: "month" },
+      product_data: {
+        name: "Git Sponsorship",
+      },
+    });
+
+    const subscription = await stripe.subscriptions.create({
+      customer: customer.id,
+      items: [{ price }],
+    });
+    const sponsor = await new Sponsor({
+      ...req.body,
+      subscriptionId: subscription.id,
+    }).save();
     res.json(sponsor);
   } catch (e) {
     next(e);
