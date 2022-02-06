@@ -53,7 +53,8 @@ app.get("/", (req, res) => {
 
 app.get("/users/:id", async (req, res, next) => {
   try {
-    await Sponsor.find({});
+    const sponsors = await Sponsor.find({ userId: req.params.id });
+    res.json(sponsors);
   } catch (e) {
     next(e);
   }

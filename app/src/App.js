@@ -6,6 +6,8 @@ import Dash from './screens/dash';
 import GhRedirect from './screens/ghRedirect';
 import Landing from './screens/landing';
 import Login from './screens/login';
+import Campaign from './screens/campaign';
+import Sponsor from './screens/sponsor';
 
 const App = () => (
   <AuthProvider>
@@ -23,6 +25,8 @@ const App = () => (
               </RequireAuth>
             }
           />
+          <Route path="/campaigns/:id" element={<Campaign />} />
+          <Route path="/campaign/:id/sponsor" element={<Sponsor />} />
         </Routes>
       </div>
     </BrowserRouter>
