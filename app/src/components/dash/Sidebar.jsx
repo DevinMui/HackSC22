@@ -55,7 +55,7 @@ const Sidebar = () => {
   const [name, setName] = React.useState('');
   const [img, setImg] = React.useState('');
   const [repos, setRepos] = React.useState([]);
-  
+  console.log(repos)
   React.useEffect(() => {
     auth.getRepos().then(setRepos);
   }, []);
@@ -74,7 +74,7 @@ const Sidebar = () => {
       </D>
       {repos.slice(0, 10).map((repo, _) => (
         <D key={repo.id}>
-          <RepoLink to="/">
+          <RepoLink to={"/campaigns/"+repo.full_name}>
             <FolderOpenOutlined />
             {repo.name}
           </RepoLink>

@@ -15,23 +15,23 @@ const Container = styled.div`
 `;
 
 const Button = styled.div`
-  cursor: pointer;
-  background: hsla(135, 48%, 57%, 1);
+  cursor: ${props => props.disabled? 'not-allowed': 'pointer'};
+  background: ${props => props.disabled? 'grey': 'hsla(135, 48%, 57%, 1)'};
   padding: 5px 20px 5px 20px;
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.12);
   border-radius: 5px;
   margin-left: 32px;
 `;
 
-const SponsorCard = ({ amount, description, onClick }) => {
+const SponsorCard = ({ amount, description, onClick, disabled }) => {
   return (
     <Container>
       <div>
         <H4>${amount} a month</H4>
         <P>{description}</P>
       </div>
-      <Button onClick={onClick}>
-        <H4>Select</H4>
+      <Button  disabled={disabled} onClick={() => !disabled && onClick()}>
+        <H4 >Select</H4>
       </Button>
     </Container>
   );
