@@ -6,12 +6,17 @@ const Admin = () => {
   const [infos, setInfos] = useState([]);
 
   const pay = async () => {
-    console.log('pay');
-    const res = await fetch(
-      `/campaigns/${encodeURIComponent(`${owner}/${repo}`)}/payout`
-    );
-    const { info } = await res.json();
-    setInfos(info);
+    try {
+      const res = await fetch(
+        `/campaigns/${encodeURIComponent(`${owner}/${repo}`)}/payout`,
+        { method: 'POST' }
+      );
+      const { info } = await res.json();
+      console.log(info);
+      setInfos(info);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
@@ -19,7 +24,6 @@ const Admin = () => {
       <h1>
         {owner}/{repo}
       </h1>
-      <button onClick={pay}>hi</button>
       <button onClick={pay}>Payout</button>
       {infos.length > 0 && <h3>Emails Sent</h3>}
       {infos.map((info) => (
