@@ -1,6 +1,11 @@
 import { createContext, useContext, useState } from 'react';
 import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest';
-import { _getContributions, _getName, _getRepos } from '../api/github';
+import {
+  _getContributions,
+  _getName,
+  _getRepos,
+  _getUserImage,
+} from '../api/github';
 
 const AuthContext = createContext(null);
 
@@ -34,6 +39,15 @@ const AuthProvider = ({ children }) => {
     }
   }
 
+  async function getUserImage() {
+    try {
+      return await _getUserImage(client);
+    } catch (e) {
+      logout();
+      throw e;
+    }
+  }
+
   async function getRepos() {
     try {
       return await _getRepos(client);
@@ -60,7 +74,9 @@ const AuthProvider = ({ children }) => {
         logout,
 
         // GitHub auth'd methods
+        // TODO: cache results instead of spamming GH
         getName,
+        getUserImage,
         getRepos,
         getContributions,
       }}

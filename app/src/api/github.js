@@ -25,6 +25,13 @@ async function _getName(client) {
   return login;
 }
 
+async function _getUserImage(client) {
+  const {
+    data: { avatar_url },
+  } = await client.rest.users.getAuthenticated();
+  return avatar_url;
+}
+
 async function _getRepos(client) {
   const { data } = await client.rest.repos.listForAuthenticatedUser({
     sort: 'updated',
@@ -45,4 +52,4 @@ async function _getContributions(_, owner, repo) {
   return await data.json();
 }
 
-export { getToken, _getRepos, _getName, _getContributions };
+export { getToken, _getRepos, _getName, _getContributions, _getUserImage };
