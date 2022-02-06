@@ -25,8 +25,8 @@ const App = () => (
               </RequireAuth>
             }
           />
-          <Route path="/campaigns/:id" element={<Campaign />} />
-          <Route path="/campaign/:id/sponsor" element={<Sponsor />} />
+          <Route path="/campaigns/:owner/:repo" element={<Campaign />} />
+          <Route path="/campaign/:owner/:repo/sponsor" element={<Sponsor />} />
         </Routes>
       </div>
     </BrowserRouter>
