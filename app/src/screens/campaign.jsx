@@ -96,7 +96,7 @@ const Campaign = () => {
       })
       .catch(() => {});
     const u = encodeURIComponent(owner + '/' + repo);
-    fetch('/campaigns/' + u + '/sponsors')
+    fetch('/api/campaigns/' + u + '/sponsors')
       .then((r) => r.json())
       .then(setSponsors);
   }, []);
@@ -114,8 +114,8 @@ const Campaign = () => {
           </Subtext>
           <Readme>{readme}</Readme>
           <SectionTitle>
-            {sponsors.length} sponsor{sponsors.length != 1? 's are':' is'} funding{' '}
-            {repo}.
+            {sponsors.length} sponsor{sponsors.length != 1 ? 's are' : ' is'}{' '}
+            funding {repo}.
           </SectionTitle>
           <SponsorImageContainer>
             {sponsors.map((s) => (

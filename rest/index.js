@@ -44,7 +44,7 @@ const sendEmail = async (to, subject, html) => {
   return { info, url: nodemailer.getTestMessageUrl(info) };
 };
 
-app.get("/campaigns", async (req, res, next) => {
+app.get("/api/campaigns", async (req, res, next) => {
   const getMine = async () => {
     // TODO?
     return await getExplore();
@@ -89,7 +89,7 @@ app.get("/campaigns", async (req, res, next) => {
   }
 });
 
-app.get("/users/:id", async (req, res, next) => {
+app.get("/api/users/:id", async (req, res, next) => {
   try {
     const sponsors = await Sponsor.find({
       userId: req.params.id,
@@ -101,7 +101,7 @@ app.get("/users/:id", async (req, res, next) => {
   }
 });
 
-app.post("/campaigns", async (req, res, next) => {
+app.post("/api/campaigns", async (req, res, next) => {
   try {
     // is this inefficient? yes. do i care? no
     // const { path } = await repo.rank({
@@ -179,7 +179,7 @@ app.post("/webhook", express.raw({ type: "*/*" }), async (req, res) => {
   }
 });
 
-app.get("/campaigns/:id/sponsors", async (req, res, next) => {
+app.get("/api/campaigns/:id/sponsors", async (req, res, next) => {
   try {
     const repoId = encodeURIComponent(req.params.id);
     const sponsors = await Sponsor.find({ repoId });
@@ -190,7 +190,7 @@ app.get("/campaigns/:id/sponsors", async (req, res, next) => {
 });
 
 // Call this on
-app.post("/campaigns/:id/sponsor", async (req, res, next) => {
+app.post("/api/campaigns/:id/sponsor", async (req, res, next) => {
   try {
     const repoId = encodeURIComponent(req.params.id);
     const amount = req.body.contribution;
@@ -262,7 +262,7 @@ app.get("/github/contributions", async (req, res, next) => {
 });
 
 // dumb admin stuff
-app.post("/campaigns/:id/payout", async (req, res, next) => {
+app.post("/api/campaigns/:id/payout", async (req, res, next) => {
   try {
     console.log("payout");
     const repoId = encodeURIComponent(req.params.id);
@@ -319,7 +319,7 @@ app.post("/campaigns/:id/payout", async (req, res, next) => {
   }
 });
 
-app.get("/campaigns/:id", async (req, res, next) => {
+app.get("/api/campaigns/:id", async (req, res, next) => {
   try {
     const repoId = encodeURIComponent(req.params.id);
     console.log("repoId", repoId);

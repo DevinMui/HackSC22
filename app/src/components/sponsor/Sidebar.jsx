@@ -87,7 +87,7 @@ const Sidebar = () => {
   React.useEffect(() => {
     auth.getName().then(setName);
     auth.getImage().then(setAvatarUrl);
-    fetch('/campaigns/' + encodeURIComponent(owner + '/' + repo))
+    fetch('/api/campaigns/' + encodeURIComponent(owner + '/' + repo))
       .then((r) => r.json())
       .then((j) => {
         console.log({ j });
@@ -133,7 +133,7 @@ const Sidebar = () => {
                 return alert('Please start your campaign with a monthly goal!');
               if (hasClick) return;
               setHasClick(true);
-              fetch('/campaigns', {
+              fetch('/api/campaigns', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',

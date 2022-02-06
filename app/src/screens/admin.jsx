@@ -8,7 +8,7 @@ const Admin = () => {
   const pay = async () => {
     try {
       const res = await fetch(
-        `/campaigns/${encodeURIComponent(`${owner}/${repo}`)}/payout`,
+        `/api/campaigns/${encodeURIComponent(`${owner}/${repo}`)}/payout`,
         { method: 'POST' }
       );
       const { info } = await res.json();

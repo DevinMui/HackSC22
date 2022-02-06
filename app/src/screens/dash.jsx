@@ -39,17 +39,17 @@ const Dash = () => {
 
   React.useEffect(() => {
     if (!name) return;
-    fetch(`/campaigns?userId=${name}&type=MINE`)
+    fetch(`/api/campaigns?userId=${name}&type=MINE`)
       .then((r) => r.json())
       .then((j) => j.map((i) => decodeURIComponent(i.repoId)))
       .then((x) => getRepos(x))
       .then((z) => setHighlights(z));
-    fetch(`/campaigns?userId=${name}&type=EXPLORE`)
+    fetch(`/api/campaigns?userId=${name}&type=EXPLORE`)
       .then((r) => r.json())
       .then((j) => j.map((i) => decodeURIComponent(i.repoId)))
       .then((x) => getRepos(x))
       .then((z) => setExplore(z));
-    fetch(`/campaigns?userId=${name}&type=SUBSCRIBED`)
+    fetch(`/api/campaigns?userId=${name}&type=SUBSCRIBED`)
       .then((r) => r.json())
       .then((j) => j.map((i) => decodeURIComponent(i.repoId)))
       .then((x) => getRepos(x))

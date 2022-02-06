@@ -1,7 +1,7 @@
 async function sponsor(owner, repo, userId, contribution, avatarUrl) {
   // Attempts to create monthly sponsorship with amount to repo
   const res = await fetch(
-    `/campaigns/${encodeURIComponent(owner + '/' + repo)}/sponsor`,
+    `/api/campaigns/${encodeURIComponent(owner + '/' + repo)}/sponsor`,
     {
       method: 'POST',
       headers: {
@@ -12,7 +12,7 @@ async function sponsor(owner, repo, userId, contribution, avatarUrl) {
         contribution,
         repoId: encodeURIComponent(owner + '/' + repo),
         userId,
-        avatarUrl
+        avatarUrl,
       }),
     }
   );
