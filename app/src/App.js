@@ -59,7 +59,6 @@ const RequireAuth = ({ children }) => {
   const nav = useNavigate();
 
   useEffect(() => {
-    console.log(window.location.pathname);
     if (!auth.user) nav('/login/' + btoa(window.location.pathname));
   }, []);
 

@@ -58,8 +58,11 @@ const Description = styled(P)`
 `;
 
 function getColor(lang) {
-  if (!lang) return 'rgba(0, 0, 0, 0)';
-  return colors[lang].color;
+  try {
+    return colors[lang].color;
+  } catch (e) {
+    return 'rgba(0, 0, 0, 0)';
+  }
 }
 
 function formatNum(n) {
