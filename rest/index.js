@@ -82,10 +82,6 @@ app.get("/campaigns", async (req, res, next) => {
   }
 });
 
-app.get("/", (_, res) => {
-  res.send("hi");
-});
-
 app.get("/users/:id", async (req, res, next) => {
   try {
     const sponsors = await Sponsor.find({
@@ -113,7 +109,7 @@ app.post("/campaigns", async (req, res, next) => {
 });
 
 // handle subscription payments
-app.post("/webhook", async (req, res, next) => {
+app.post("/webhook", async (req, res) => {
   // Retrieve the event by verifying the signature using the raw body and secret.
   let event;
 
@@ -294,6 +290,18 @@ app.get("/campaigns/:id", async (req, res, next) => {
     next(e);
   }
 });
+
+if (process.env.NODE_ENV === "production") {
+  // Serve React production bundle
+  app.use(express.static(path.join(__dirname, "build")));
+  app.get("/*", (req, res) => {
+    res.sendFile(path.join(__dirname, "build", "index.html"));
+  });
+} else {
+  app.get("/", (req, res) => {
+    return res.json({ message: "hello world!" });
+  });
+}
 
 // error handlers
 app.use((req, res) => {
