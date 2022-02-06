@@ -259,32 +259,46 @@ app.post("/campaigns/:id/payout", async (req, res, next) => {
 
     const sponsors = await Sponsor.find({ repoId, paymentAccepted: true });
     // total sponsor contributions
-    const sum = sponsors.reduce(
-      (prev, curr) => prev.contribution + curr.contribution
-    );
+    let sum = 0;
+    sponsors.forEach((sponsor) => (sum += sponsor.contribution));
+    console.log("sum", sum);
 
-    const { rank } = await repo.rank({
+    const { data } = await repo.rank({
       path: campaign.path,
     });
 
-    // total contributions
-    const totalContributions = rank.reduce(
-      (prev, curr) => Number(prev.commits) + Number(curr.commits)
-    );
+    const { rank } = data;
 
-    const notifInfo = await rank.map((r) => {
-      const ratio = r.commits / totalContributions;
+    // total contributions
+    let totalContributions = 0;
+    rank.forEach((r) => (totalContributions += Number(r.commits)));
+
+    console.log("tc", totalContributions);
+
+    const notifInfo = rank.map((r) => {
+      const ratio = Number(r.commits) / totalContributions;
       const pay = ratio * sum;
       return { ratio, pay, name: r.name, email: r.email };
     });
 
-    const info = await notifInfo.map(async (info) => {
-      const subject = `Thanks for contributing to ${repoId}`;
-      const message = `<p>Thank you, ${info.name}!</p>
-      <p>For your contributions to the repository <a href="https://github.com/${repoId}">${repoId}</a>, we have sent you ${info.pay} this month.</p>
+    console.log("ntif", notifInfo);
+
+    const info = await Promise.all(
+      notifInfo.map(async (info) => {
+        const subject = `Thanks for contributing to ${decodeURIComponent(
+          repoId
+        )}`;
+        const message = `<p>Thank you, ${info.name}!</p>
+      <p>For your contributions to the repository <a href="https://github.com/${decodeURIComponent(
+        repoId
+      )}">${decodeURIComponent(repoId)}</a>, we have sent you $${(
+          info.pay / 100
+        ).toFixed(2)} this month.</p>
         <p>Keep at it!</p><p>GitPeanuts team 🥜</p>`;
-      return await sendEmail(info.email, subject, message);
-    });
+        return await sendEmail(info.email, subject, message);
+      })
+    );
+    console.log("end info", info);
     return res.json({ sent: true, info });
   } catch (e) {
     next(e);
