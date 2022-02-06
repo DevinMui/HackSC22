@@ -52,6 +52,29 @@ const AuthProvider = ({ children }) => {
     }
   }
 
+  async function getFile(owner, repo, path) {
+    try {
+      return await client.request('GET /repos/{owner}/{repo}/contents/{path}', {
+        owner,
+        repo,
+        path,
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async function getContributors(owner, repo) {
+    try {
+      return await client.request('GET /repos/{owner}/{repo}/contributors', {
+        owner,
+        repo,
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -63,6 +86,8 @@ const AuthProvider = ({ children }) => {
         getName,
         getRepos,
         getContributions,
+        getContributors,
+        getFile,
       }}
     >
       {children}

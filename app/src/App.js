@@ -1,11 +1,13 @@
-import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
-import "./App.css";
-import { AuthProvider, useAuth } from "./context/auth";
-import Dash from "./screens/dash";
-import GhRedirect from "./screens/ghRedirect";
-import Landing from "./screens/landing";
-import Login from "./screens/login";
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import './App.css';
+import { AuthProvider, useAuth } from './context/auth';
+import Dash from './screens/dash';
+import GhRedirect from './screens/ghRedirect';
+import Landing from './screens/landing';
+import Login from './screens/login';
+import Campaign from './screens/campaign';
+import Sponsor from './screens/sponsor';
 
 const App = () => (
   <AuthProvider>
@@ -23,6 +25,8 @@ const App = () => (
               </RequireAuth>
             }
           />
+          <Route path="/campaigns/:id" element={<Campaign />} />
+          <Route path="/campaign/:id/sponsor" element={<Sponsor />} />
         </Routes>
       </div>
     </BrowserRouter>
@@ -34,9 +38,8 @@ const RequireAuth = ({ children }) => {
   const nav = useNavigate();
 
   useEffect(() => {
-    if(!auth.user) 
-      nav("/login");
-  }, [])
+    if (!auth.user) nav('/login');
+  }, []);
 
   if (!auth.user) {
     return <></>;
