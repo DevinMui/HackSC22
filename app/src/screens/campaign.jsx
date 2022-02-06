@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../context/auth';
 import { Chart, ArcElement } from 'chart.js';
@@ -11,6 +11,7 @@ Chart.register(ArcElement);
 
 const Campaign = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { getFile, getContributors } = useAuth();
   const [readme, setReadme] = useState('');
   const [contributors, setContributors] = useState([]);
@@ -53,8 +54,7 @@ const Campaign = () => {
 
     setNums(nums);
     setLabels(labels);
-    console.log(labels);
-  }, [getFile, getContributors]);
+  }, [getFile, getContributors, rank]);
 
   const data = {
     labels,
@@ -71,16 +71,39 @@ const Campaign = () => {
       },
     ],
   };
+
+  const onSponsor = async () => {
+    const contribution = 1000;
+    const res = await fetch(`/campaigns/${id}/sponsor`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contribution,
+        repoId: '',
+        userId: '',
+        subscriptionId: '',
+        paymentAccepted: false,
+      }),
+    });
+    const body = await res.json();
+    console.log(body);
+    const secret = body.clientSecret;
+    navigate(`sponsors?clientSecret=${secret}`);
+  };
+
   return (
     <>
       <ReactMarkdown>{readme}</ReactMarkdown>
+      <button onClick={onSponsor}>Sponsor</button>
       <Doughnut data={data} />
       <h3>Contributors</h3>
       {contributors.map((contributor) => (
         <>
-          <img src={contributor.avatar_url} />
+          <img src={contributor.avatar_url} alt={contributor.login} />
           <p>
-            <a target="_blank" href={contributor.html_url}>
+            <a target="_blank" rel="noreferrer" href={contributor.html_url}>
               {contributor.login}
             </a>
           </p>

@@ -27,6 +27,8 @@ const App = () => (
           />
           <Route path="/campaigns/:owner/:repo" element={<Campaign />} />
           <Route path="/campaign/:owner/:repo/sponsor" element={<Sponsor />} />
+          <Route path="/campaigns/:id" element={<Campaign />} />
+          <Route path="/campaigns/:id/sponsors" element={<Sponsor />} />
         </Routes>
       </div>
     </BrowserRouter>
