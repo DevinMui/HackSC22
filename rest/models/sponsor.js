@@ -8,7 +8,7 @@ const subscriberSchema = mongoose.Schema(
     },
     userId: { type: String, index: true },
     subscriptionId: { type: String, index: true },
-    paymentAccepted: { type: Boolean, index: true },
+    paymentAccepted: { type: Boolean, index: true, default: false },
     contribution: { type: Number },
   },
   {

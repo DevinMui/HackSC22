@@ -167,9 +167,20 @@ app.post("/webhook", async (req, res) => {
   res.status(200);
 });
 
+app.get("/campaigns/:id/sponsors", async (req, res, next) => {
+  try {
+    const repoId = encodeURIComponent(req.params.id);
+    const sponsors = await Sponsor.find({ repoId });
+    res.json(sponsors);
+  } catch (e) {
+    next(e);
+  }
+});
+
 // Call this on
 app.post("/campaigns/:id/sponsor", async (req, res, next) => {
   try {
+    const repoId = encodeURIComponent(req.params.id);
     const amount = req.body.contribution;
     const customer = await stripe.customers.create();
     const price = await stripe.prices.create({
@@ -189,6 +200,7 @@ app.post("/campaigns/:id/sponsor", async (req, res, next) => {
     });
     const sponsor = await new Sponsor({
       ...req.body,
+      repoId,
       subscriptionId: subscription.id,
     }).save();
     res.json({
@@ -238,13 +250,14 @@ app.get("/github/contributions", async (req, res, next) => {
 // dumb admin stuff
 app.post("/campaigns/:id/payout", async (req, res, next) => {
   try {
+    console.log("payout");
     const repoId = encodeURIComponent(req.params.id);
 
     const campaign = await Campaign.findOne({
       repoId,
     });
 
-    const sponsors = await Sponsor.find({ repoId });
+    const sponsors = await Sponsor.find({ repoId, paymentAccepted: true });
     // total sponsor contributions
     const sum = sponsors.reduce(
       (prev, curr) => prev.contribution + curr.contribution
