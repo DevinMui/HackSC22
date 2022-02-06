@@ -2,8 +2,9 @@ import { useMemo, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import {
   Elements,
-  ElementsConsumer,
   PaymentElement,
+  useStripe,
+  useElements,
 } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 
@@ -15,9 +16,28 @@ function useQuery() {
   return useMemo(() => new URLSearchParams(search), [search]);
 }
 
-const CheckoutForm = ({ stripe, elements }) => {
+const CheckoutForm = () => {
+  const stripe = useStripe();
+  const elements = useElements();
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+
+    const result = await stripe.confirmPayment({
+      //`Elements` instance that was used to create the Payment Element
+      elements,
+      confirmParams: {
+        return_url: 'http://localhost:3000/dash',
+      },
+    });
+
+    if (result.error) {
+      console.error(result.error.message);
+    }
+  };
+
   return (
-    <form>
+    <form onSubmit={onSubmit}>
       <PaymentElement />
       <button>Submit</button>
     </form>
@@ -36,11 +56,7 @@ const Sponsor = () => {
 
   return (
     <Elements stripe={stripePromise} options={opt}>
-      <ElementsConsumer>
-        {({ stripe, elements }) => (
-          <CheckoutForm stripe={stripe} elements={elements} />
-        )}
-      </ElementsConsumer>
+      <CheckoutForm />
     </Elements>
   );
 };
