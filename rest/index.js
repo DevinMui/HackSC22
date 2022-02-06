@@ -9,7 +9,7 @@ const nodemailer = require("nodemailer");
 
 mongoose.connect("mongodb://localhost/hacksc22");
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 const app = express();
 
 app.use((req, res, next) => {
@@ -135,43 +135,47 @@ app.post("/webhook", express.raw({ type: "*/*" }), async (req, res) => {
     console.log(`⚠️  Check the env file and enter the correct webhook secret.`);
     return res.sendStatus(400);
   }
-  // Extract the object from the event.
-  const dataObject = event.data.object;
+  try {
+    // Extract the object from the event.
+    const dataObject = event.data.object;
 
-  if (dataObject["billing_reason"] == "subscription_create") {
-    const subscription_id = dataObject["subscription"];
-    const payment_intent_id = dataObject["payment_intent"];
+    if (dataObject["billing_reason"] == "subscription_create") {
+      const subscription_id = dataObject["subscription"];
+      const payment_intent_id = dataObject["payment_intent"];
 
-    // Retrieve the payment intent used to pay the subscription
-    const payment_intent = await stripe.paymentIntents.retrieve(
-      payment_intent_id
-    );
+      // Retrieve the payment intent used to pay the subscription
+      const payment_intent = await stripe.paymentIntents.retrieve(
+        payment_intent_id
+      );
 
-    // Set payment
-    await stripe.subscriptions.update(subscription_id, {
-      default_payment_method: payment_intent.payment_method,
-    });
+      // Set payment
+      await stripe.subscriptions.update(subscription_id, {
+        default_payment_method: payment_intent.payment_method,
+      });
 
-    const sub = await Sponsor.findOne({ subscriptionId: subscription_id });
-    sub.paymentAccepted = true;
-    await sub.save();
-    console.log("payment accepted", sub);
+      const sub = await Sponsor.findOne({ subscriptionId: subscription_id });
+      sub.paymentAccepted = true;
+      await sub.save();
+      console.log("payment accepted", sub);
+    }
+
+    switch (event.type) {
+      case "invoice.paid":
+        break;
+      case "invoice.payment_failed":
+        break;
+      case "customer.subscription.deleted":
+        if (event.request != null) {
+        } else {
+        }
+        break;
+      default:
+        break;
+    }
+    res.status(200);
+  } catch (e) {
+    res.status(200);
   }
-
-  switch (event.type) {
-    case "invoice.paid":
-      break;
-    case "invoice.payment_failed":
-      break;
-    case "customer.subscription.deleted":
-      if (event.request != null) {
-      } else {
-      }
-      break;
-    default:
-      break;
-  }
-  res.status(200);
 });
 
 app.get("/campaigns/:id/sponsors", async (req, res, next) => {
