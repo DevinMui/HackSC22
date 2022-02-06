@@ -12,7 +12,13 @@ mongoose.connect("mongodb://localhost/hacksc22");
 const PORT = 8080;
 const app = express();
 
-app.use(express.json());
+app.use((req, res, next) => {
+  if (req.originalUrl === "/webhook") {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
 
 const sendEmail = async (to, subject, html) => {
   let testAccount = await nodemailer.createTestAccount();
@@ -113,7 +119,7 @@ app.post("/campaigns", async (req, res, next) => {
 });
 
 // handle subscription payments
-app.post("/webhook", async (req, res) => {
+app.post("/webhook", express.raw({ type: "*/*" }), async (req, res) => {
   // Retrieve the event by verifying the signature using the raw body and secret.
   let event;
 
@@ -146,9 +152,10 @@ app.post("/webhook", async (req, res) => {
       default_payment_method: payment_intent.payment_method,
     });
 
-    const sub = await Sponsor({ subscriptionId: subscription_id });
+    const sub = await Sponsor.findOne({ subscriptionId: subscription_id });
     sub.paymentAccepted = true;
     await sub.save();
+    console.log("payment accepted", sub);
   }
 
   switch (event.type) {
@@ -191,6 +198,8 @@ app.post("/campaigns/:id/sponsor", async (req, res, next) => {
         name: "Git Sponsorship",
       },
     });
+
+    console.log("sponsor body", req.body);
 
     const subscription = await stripe.subscriptions.create({
       customer: customer.id,
