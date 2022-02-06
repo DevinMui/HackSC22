@@ -1,114 +1,125 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import styled from 'styled-components';
 import { useAuth } from '../context/auth';
-import { Chart, ArcElement } from 'chart.js';
+import { Chart, ArcElement, Tooltip } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
+import { FolderOpenOutlined, EllipsisOutlined } from '@ant-design/icons';
+import NavBar from '../components/common/NavBar';
+import { H1, H3, Subtext } from '../components/common/Text';
+import ContributorCard from '../components/sponsor/ContributorCard';
 
-import SAMPLE_DATA from './sample_data';
+Chart.register(ArcElement, Tooltip, ArcElement);
 
-Chart.register(ArcElement);
+const Container = styled.div`
+  display: flex;
+`;
+const Readme = styled(ReactMarkdown)``;
+const DoughnutContainer = styled.div`
+  width: 50%;
+  cursor: pointer;
+`;
+
+const MainContent = styled.div`
+  flex-grow: 1;
+  max-width: 800px;
+  margin: 0 auto;
+`;
+
+const SpecialFolderIcon = styled(FolderOpenOutlined)`
+  margin-left: 8px;
+`;
+
+const ContribCount = styled.span`
+  background: hsla(18, 79%, 45%, 1);
+  padding: 4px;
+  border-radius: 5px;
+  margin-left: 8px;
+`;
+
+const SectionTitle = styled(H3)`
+  margin-top: 32px;
+`;
+
+const DisplayAllButt = styled.div`
+  border-radius: 50%;
+  cursor: pointer;
+  background: hsla(135, 48%, 57%, 1);
+  display: inline;
+  height: 36px;
+  width: 36px;
+  padding: 8px;
+  margin-top: -16px;
+`;
 
 const Campaign = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { getFile, getContributors } = useAuth();
+  const { owner, repo } = useParams();
+  const { getFile, getContributions } = useAuth();
   const [readme, setReadme] = useState('');
   const [contributors, setContributors] = useState([]);
-  const [rank, setRank] = useState(SAMPLE_DATA.rank);
-  const [labels, setLabels] = useState([]);
-  const [nums, setNums] = useState([]);
+  const [shownContributors, setShownContributors] = useState(2);
+
+  const [data, setData] = useState({
+    datasets: [{ data: [100], hoverOffset: 4 }],
+    labels: ['hello world'],
+  });
 
   useEffect(() => {
-    const owner = 'DevinMui';
-    const repo = 'HackSC22';
-    const path = 'README.md';
-    getFile(owner, repo, path).then((res) => {
-      console.log(res.data);
-      const { content } = res.data;
-      // decode b64 to utf8
-      setReadme(atob(content));
+    getContributions(owner, repo).then((c) => {
+      console.log(c[0]);
+      setContributors(c.sort((a, b) => b.total - a.total));
+      const nums = c.map((x) => x.total);
+      const labels = c.map((x) => x.author.login);
+      setData({ datasets: [{ data: nums }], labels });
     });
-    getContributors(owner, repo).then((res) => {
-      setContributors(res.data);
-    });
+    getFile(owner, repo, 'README')
+      .then((res) => {
+        setReadme(atob(res.data.content));
+      })
+      .catch(() => {});
+    getFile(owner, repo, 'README.md')
+      .then((res) => {
+        setReadme(atob(res.data.content));
+      })
+      .catch(() => {});
 
     // calculations
-    const nums = [];
-    const labels = [];
-    let otherNum = 0;
-    rank.forEach((r, i) => {
-      if (i > 3) {
-        otherNum += Number(r.commits);
-        return;
-      }
-
-      nums.push(Number(r.commits));
-      labels.push(r.name);
-    });
-
-    if (otherNum) {
-      nums.push(otherNum);
-      labels.push('Other');
-    }
-
-    setNums(nums);
-    setLabels(labels);
-  }, [getFile, getContributors, rank]);
-
-  const data = {
-    labels,
-    datasets: [
-      {
-        label: 'My First Dataset',
-        data: nums,
-        backgroundColor: [
-          'rgb(255, 99, 132)',
-          'rgb(54, 162, 235)',
-          'rgb(255, 205, 86)',
-        ],
-        hoverOffset: 4,
-      },
-    ],
-  };
-
-  const onSponsor = async () => {
-    const contribution = 1000;
-    const res = await fetch(`/campaigns/${id}/sponsor`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contribution,
-        repoId: '',
-        userId: '',
-        subscriptionId: '',
-        paymentAccepted: false,
-      }),
-    });
-    const body = await res.json();
-    console.log(body);
-    const secret = body.clientSecret;
-    navigate(`sponsors?clientSecret=${secret}`);
-  };
+  }, []);
 
   return (
     <>
-      <ReactMarkdown>{readme}</ReactMarkdown>
-      <button onClick={onSponsor}>Sponsor</button>
-      <Doughnut data={data} />
-      <h3>Contributors</h3>
-      {contributors.map((contributor) => (
-        <>
-          <img src={contributor.avatar_url} alt={contributor.login} />
-          <p>
-            <a target="_blank" rel="noreferrer" href={contributor.html_url}>
-              {contributor.login}
-            </a>
-          </p>
-        </>
-      ))}
+      <NavBar />
+      <Container>
+        <MainContent>
+          <H1>
+            Sponsor <SpecialFolderIcon /> {owner}/{repo}
+          </H1>
+          <Subtext>
+            Your sponsorship will support the team behind <b>{repo}</b>.
+          </Subtext>
+          <Readme>{readme}</Readme>
+          <SectionTitle>XX sponsors are funding {repo}.</SectionTitle>
+          <SectionTitle>Contribution Chart</SectionTitle>
+          <DoughnutContainer>
+            <Doughnut data={data} />
+          </DoughnutContainer>
+          <SectionTitle>
+            Contributors
+            <ContribCount>
+              {contributors.length > 99 ? '99+' : contributors.length}
+            </ContribCount>
+          </SectionTitle>
+          {contributors.slice(0, shownContributors).map((contributor) => (
+            <ContributorCard key={contributor.author.id} item={contributor} />
+          ))}
+          {contributors.length > shownContributors && (
+            <DisplayAllButt onClick={() => setShownContributors(200)}>
+              <EllipsisOutlined />
+            </DisplayAllButt>
+          )}
+        </MainContent>
+      </Container>
     </>
   );
 };

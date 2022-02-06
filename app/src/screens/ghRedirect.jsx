@@ -11,12 +11,21 @@ const GhRedirect = () => {
     const url = window.location.href;
     const hasCode = url.includes('?code=');
     if (hasCode) {
-      getToken(url.split('?code=')[1]).then((tok) => {
+      const sp = url.split('?code=')[1];
+      let redir = '/dash';
+      if (window.location.hash) {
+        try {
+          redir = atob(window.location.hash.substr(1));
+        } catch (e) {
+          redir = '/dash';
+        }
+      }
+      getToken(sp.split('#')[0]).then((tok) => {
         setMessage('Login successful! Redirecting you to GitPeanuts...');
         auth.login(tok);
         window
           .setTimeout(() => {
-            navigate('/dash');
+            navigate(redir);
           }, 2000)
           .catch(() => {
             setMessage('Login unsuccessful, redirecting...');
