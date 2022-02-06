@@ -313,14 +313,20 @@ app.get("/campaigns/:id", async (req, res, next) => {
       repoId,
     });
 
+    const sponsors = await Sponsor.find({ repoId, paymentAccepted: true });
+    // total sponsor contributions
+    let sum = 0;
+    sponsors.forEach((sponsor) => (sum += sponsor.contribution));
+
     if (campaign === null) throw "campaign not found";
 
     console.log("campaign", campaign);
-    const { rank } = await repo.rank({
+    const { data } = await repo.rank({
       path: campaign.path,
     });
+    const { rank } = data;
 
-    res.json({ ...campaign, rank });
+    res.json({ ...campaign, rank, sum });
   } catch (e) {
     next(e);
   }
