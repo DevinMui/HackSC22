@@ -40,7 +40,7 @@ const Dash = () => {
             {repos.map((repo) => (
               <RepoCard
                 key={repo.id}
-                to="/"
+                to={`/campaigns/${repo.full_name}`}
                 repoName={repo.name}
                 repoOwner={repo.owner.login}
                 description={repo.description}
@@ -55,7 +55,7 @@ const Dash = () => {
             {repos.map((repo) => (
               <RepoCard
                 key={repo.id}
-                to="/"
+                to={`/campaigns/${repo.full_name}`}
                 repoName={repo.name}
                 repoOwner={repo.owner.login}
                 description={repo.description}
@@ -70,7 +70,7 @@ const Dash = () => {
             {repos.map((repo) => (
               <RepoCard
                 key={repo.id}
-                to="/"
+                to={`/campaigns/${repo.full_name}`}
                 repoName={repo.name}
                 repoOwner={repo.owner.login}
                 description={repo.description}

@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router';
 import NavBar from '../components/common/NavBar';
+import { useAuth } from '../context/auth';
 
-const Landing = () => (
-  <>
-    <NavBar />
-    <div>Make peanut</div>
-  </>
-);
-
+const Landing = () => {
+  const nav = useNavigate();
+  const auth = useAuth();
+  useEffect(() => {
+    if (auth.user) nav('/dash');
+  }, []);
+  return (
+    <>
+      <NavBar />
+      <div>Make peanut</div>
+    </>
+  );
+};
 export default Landing;
