@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from 'react';
-import { Octokit } from 'https://cdn.skypack.dev/@octokit/rest';
+import { Octokit } from 'octokit';
 import {
   _getContributions,
   _getName,
@@ -112,7 +112,7 @@ const AuthProvider = ({ children }) => {
         getContributions,
         getContributors,
         getFile,
-        getImage
+        getImage,
       }}
     >
       {children}
