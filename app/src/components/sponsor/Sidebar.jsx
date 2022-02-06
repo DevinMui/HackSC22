@@ -6,6 +6,8 @@ import { useAuth } from '../../context/auth';
 import { H3, Subtext } from '../common/Text';
 import SponsorCard from './SponsorCard';
 
+const epsilon = 0.000000001
+
 const Container = styled.div`
   margin-right: 24px;
   > * {
@@ -94,14 +96,18 @@ const Sidebar = () => {
   if (campaign)
     return (
       <Container>
-        <H3>XX% towards $XXX per month goal</H3>
-        <H3>Select a tier</H3>
+        <H3>
+          {Math.round(campaign.sum / (campaign._doc.goal+epsilon))}% towards $
+          {campaign._doc.goal} per month goal
+        </H3>
+        <H3>{name === owner ? 'Sponsor Tiers' : 'Select a tier'}</H3>
         <TierList>
           {tiers.map((tier) => (
             <SponsorCard
               amount={tier.amount}
               description={tier.description}
               key={tier.amount}
+              disabled={name === owner}
               onClick={() => onClick(tier.amount * 100)}
             />
           ))}
