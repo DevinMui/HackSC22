@@ -114,7 +114,7 @@ const Campaign = () => {
           </Subtext>
           <Readme>{readme}</Readme>
           <SectionTitle>
-            {sponsors.length} sponsor{sponsors.length > 1? 's are':' is'} funding{' '}
+            {sponsors.length} sponsor{sponsors.length != 1? 's are':' is'} funding{' '}
             {repo}.
           </SectionTitle>
           <SponsorImageContainer>
