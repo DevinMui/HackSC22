@@ -7,7 +7,7 @@ const Landing = () => {
   const nav = useNavigate();
   const auth = useAuth();
   useEffect(() => {
-    if (auth.user) nav('/dash');
+    nav('/dash');
   }, []);
   return (
     <>
