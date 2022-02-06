@@ -36,13 +36,11 @@ async function _getRepos(client) {
   const { data } = await client.rest.repos.listForAuthenticatedUser({
     sort: 'updated',
   });
-  console.log(JSON.stringify(data));
   return data;
 }
 
 async function _getContributions(_, owner, repo) {
   const url = `/github/contributions?owner=${owner}&repo=${repo}`;
-  console.log(url);
   const data = await fetch(url, {
     headers: {
       Accept: 'application/json',

@@ -20,19 +20,19 @@ const GhRedirect = () => {
           redir = '/dash';
         }
       }
-      getToken(sp.split('#')[0]).then((tok) => {
-        setMessage('Login successful! Redirecting you to GitPeanuts...');
-        auth.login(tok);
-        window
-          .setTimeout(() => {
+      getToken(sp.split('#')[0])
+        .then((tok) => {
+          setMessage('Login successful! Redirecting you to GitPeanuts...');
+          auth.login(tok);
+          window.setTimeout(() => {
             navigate(redir);
-          }, 500)
-          .catch(() => {
-            setMessage('Login unsuccessful, redirecting...');
-            auth.logout();
-            window.setTimeout(() => navigate('/'), 500);
-          });
-      });
+          }, 500);
+        })
+        .catch(() => {
+          setMessage('Login unsuccessful, redirecting...');
+          auth.logout();
+          window.setTimeout(() => navigate('/'), 500);
+        });
     } else {
       auth.logout();
       window.setTimeout(() => navigate(-2), 500);
