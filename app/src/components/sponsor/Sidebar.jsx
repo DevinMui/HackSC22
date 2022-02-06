@@ -132,7 +132,7 @@ const Sidebar = () => {
                   repoId: encodeURIComponent(owner + '/' + repo),
                   goal: 100 * Math.floor(contribAmt),
                   url: `git@github.com:${owner}/${repo}.git`,
-                  name: owner + '/' + repo,
+                  name: repo,
                 }),
               })
                 .then(() => {
