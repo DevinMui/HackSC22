@@ -29,7 +29,7 @@ const Admin = () => {
       {infos.map((info) => (
         <p>
           Email:{' '}
-          <a target="_blank" rel="noreferrer" href={`{info.url}`}>
+          <a target="_blank" rel="noreferrer" href={info.url}>
             {info.url}
           </a>
         </p>
