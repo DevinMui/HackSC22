@@ -53,7 +53,10 @@ app.get("/", (req, res) => {
 
 app.get("/users/:id", async (req, res, next) => {
   try {
-    const sponsors = await Sponsor.find({ userId: req.params.id });
+    const sponsors = await Sponsor.find({
+      userId: req.params.id,
+      paymentAccepted: true,
+    });
     res.json(sponsors);
   } catch (e) {
     next(e);
@@ -90,20 +93,66 @@ app.post("/campaigns", async (req, res, next) => {
   }
 });
 
-app.post("/campaigns/:id/sponsors", async (req, res) => {
+// handle subscription payments
+app.post("/webhook", async (req, res, next) => {
+  // Retrieve the event by verifying the signature using the raw body and secret.
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      req.headers["stripe-signature"],
+      process.env.WEBHOOK_KEY
+    );
+  } catch (err) {
+    console.log(err);
+    console.log(`⚠️  Webhook signature verification failed.`);
+    console.log(`⚠️  Check the env file and enter the correct webhook secret.`);
+    return res.sendStatus(400);
+  }
+  // Extract the object from the event.
+  const dataObject = event.data.object;
+
+  if (dataObject["billing_reason"] == "subscription_create") {
+    const subscription_id = dataObject["subscription"];
+    const payment_intent_id = dataObject["payment_intent"];
+
+    // Retrieve the payment intent used to pay the subscription
+    const payment_intent = await stripe.paymentIntents.retrieve(
+      payment_intent_id
+    );
+
+    // Set payment
+    await stripe.subscriptions.update(subscription_id, {
+      default_payment_method: payment_intent.payment_method,
+    });
+
+    const sub = await Sponsor({ subscriptionId: subscription_id });
+    sub.paymentAccepted = true;
+    await sub.save();
+  }
+
+  switch (event.type) {
+    case "invoice.paid":
+      break;
+    case "invoice.payment_failed":
+      break;
+    case "customer.subscription.deleted":
+      if (event.request != null) {
+      } else {
+      }
+      break;
+    default:
+      break;
+  }
+  res.status(200);
+});
+
+// Call this on
+app.post("/campaigns/:id/sponsor", async (req, res, next) => {
   try {
     const amount = req.body.contribution;
     const customer = await stripe.customers.create();
-    await stripe.paymentIntents.create({
-      customer: customer.id,
-      setup_future_usage: "off_session",
-      amount,
-      currency: "usd",
-      automatic_payment_methods: {
-        enabled: true,
-      },
-    });
-
     const price = await stripe.prices.create({
       unit_amount: amount,
       currency: "usd",
@@ -115,13 +164,19 @@ app.post("/campaigns/:id/sponsors", async (req, res) => {
 
     const subscription = await stripe.subscriptions.create({
       customer: customer.id,
-      items: [{ price }],
+      items: [{ price: price.id }],
+      payment_behavior: "default_incomplete",
+      expand: ["latest_invoice.payment_intent"],
     });
     const sponsor = await new Sponsor({
       ...req.body,
       subscriptionId: subscription.id,
     }).save();
-    res.json(sponsor);
+    res.json({
+      sponsor,
+      subscription,
+      clientSecret: subscription.latest_invoice.payment_intent.client_secret,
+    });
   } catch (e) {
     next(e);
   }

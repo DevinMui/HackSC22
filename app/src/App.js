@@ -26,7 +26,7 @@ const App = () => (
             }
           />
           <Route path="/campaigns/:id" element={<Campaign />} />
-          <Route path="/campaign/:id/sponsor" element={<Sponsor />} />
+          <Route path="/campaigns/:id/sponsors" element={<Sponsor />} />
         </Routes>
       </div>
     </BrowserRouter>
