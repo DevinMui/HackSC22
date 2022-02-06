@@ -5,6 +5,7 @@ const stripe = require("stripe")(process.env.SECRET_KEY);
 const repo = require("./repo");
 const Campaign = require("./models/campaign");
 const Sponsor = require("./models/sponsor");
+const nodemailer = require("nodemailer");
 
 mongoose.connect("mongodb://localhost/hacksc22");
 
@@ -13,15 +14,49 @@ const app = express();
 
 app.use(express.json());
 
+const sendEmail = async (to, subject, html) => {
+  let testAccount = await nodemailer.createTestAccount();
+
+  // create reusable transporter object using the default SMTP transport
+  let transporter = nodemailer.createTransport({
+    host: "smtp.ethereal.email",
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: testAccount.user, // generated ethereal user
+      pass: testAccount.pass, // generated ethereal password
+    },
+  });
+
+  let info = await transporter.sendMail({
+    from: '"GitPeanuts 🥜" <pay@gitpeanuts.com>', // sender address
+    to,
+    subject,
+    html,
+  });
+  return { info, url: nodemailer.getTestMessageUrl(info) };
+};
+
 app.get("/campaigns", async (req, res, next) => {
   const getMine = async () => {
-    // TODO
+    // TODO?
     return await getExplore();
   };
 
   const getSubscribed = async () => {
-    // TODO
-    return await getExplore();
+    // this is quite possibly the least efficient query ive ever written
+    const sponsors = await Sponsor.find({
+      userId: req.query.userId,
+      paymentAccepted: true,
+    });
+
+    const campaigns = await Promise.all(
+      sponsors.map(async (sponsor) => {
+        return await Campaign.findOne({ repoId: sponsor.repoId });
+      })
+    );
+
+    res.json(campaigns);
   };
 
   const getExplore = async () => {
@@ -47,7 +82,7 @@ app.get("/campaigns", async (req, res, next) => {
   }
 });
 
-app.get("/", (req, res) => {
+app.get("/", (_, res) => {
   res.send("hi");
 });
 
@@ -58,22 +93,6 @@ app.get("/users/:id", async (req, res, next) => {
       paymentAccepted: true,
     });
     res.json(sponsors);
-  } catch (e) {
-    next(e);
-  }
-});
-
-app.get("/campaigns/:id", async (req, res, next) => {
-  try {
-    const campaign = await Campaign.findOne({
-      repoId: req.params.id,
-    });
-
-    const { rank } = await repo.rank({
-      path: campaign.path,
-    });
-
-    res.json({ ...campaign, rank });
   } catch (e) {
     next(e);
   }
@@ -182,25 +201,98 @@ app.post("/campaigns/:id/sponsor", async (req, res, next) => {
   }
 });
 
-app.post("/github/oauth", async (req, res) => {
-  const b = await fetch("https://github.com/login/oauth/access_token", {
-    headers: { Accept: "application/json", "Content-Type": "application/json" },
-    method: "POST",
-    body: JSON.stringify(req.body),
-  });
-  const json = await b.json();
-  res.send({ token: json.access_token });
+app.post("/github/oauth", async (req, res, next) => {
+  try {
+    const b = await fetch("https://github.com/login/oauth/access_token", {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify(req.body),
+    });
+    const json = await b.json();
+    res.send({ token: json.access_token });
+  } catch (e) {
+    next(e);
+  }
 });
 
-app.get("/github/contributions", async (req, res) => {
-  const url = `https://github.com/${req.query.owner}/${req.query.repo}/graphs/contributors-data`;
-  const b = await fetch(url, {
-    headers: { Accept: "application/json", "Content-Type": "application/json" },
-  });
-  const json = await b.json();
-  console.log(url);
-  console.log(JSON.stringify(json));
-  res.send(json);
+app.get("/github/contributions", async (req, res, next) => {
+  try {
+    const url = `https://github.com/${req.query.owner}/${req.query.repo}/graphs/contributors-data`;
+    const b = await fetch(url, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+    const json = await b.json();
+    console.log(url);
+    console.log(JSON.stringify(json));
+    res.send(json);
+  } catch (e) {
+    next(e);
+  }
+});
+
+// dumb admin stuff
+app.post("/campaigns/:id/payout", async (req, res, next) => {
+  try {
+    const repoId = req.params.id;
+
+    const campaign = await Campaign.findOne({
+      repoId,
+    });
+
+    const sponsors = await Sponsor.find({ repoId });
+    // total sponsor contributions
+    const sum = sponsors.reduce(
+      (prev, curr) => prev.contribution + curr.contribution
+    );
+
+    const { rank } = await repo.rank({
+      path: campaign.path,
+    });
+
+    // total contributions
+    const totalContributions = rank.reduce(
+      (prev, curr) => Number(prev.commits) + Number(curr.commits)
+    );
+
+    const notifInfo = await rank.map((r) => {
+      const ratio = r.commits / totalContributions;
+      const pay = ratio * sum;
+      return { ratio, pay, name: r.name, email: r.email };
+    });
+
+    const info = await notifInfo.map(async (info) => {
+      const subject = `Thanks for contributing to ${repoId}`;
+      const message = `<p>Thank you, ${info.name}!</p>
+      <p>For your contributions to the repository <a href="https://github.com/${repoId}">${repoId}</a>, we have sent you ${info.pay} this month.</p>
+        <p>Keep at it!</p><p>GitPeanuts team 🥜</p>`;
+      return await sendEmail(info.email, subject, message);
+    });
+    return res.json({ sent: true, info });
+  } catch (e) {
+    next(e);
+  }
+});
+
+app.get("/campaigns/:id", async (req, res, next) => {
+  try {
+    const campaign = await Campaign.findOne({
+      repoId: req.params.id,
+    });
+
+    const { rank } = await repo.rank({
+      path: campaign.path,
+    });
+
+    res.json({ ...campaign, rank });
+  } catch (e) {
+    next(e);
+  }
 });
 
 // error handlers
