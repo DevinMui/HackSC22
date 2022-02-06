@@ -335,7 +335,7 @@ app.get("/campaigns/:id", async (req, res, next) => {
     });
     const { rank } = data;
 
-    res.json({ ...campaign, rank, sum });
+    res.json({ ...campaign, rank, sum, sponsors });
   } catch (e) {
     next(e);
   }

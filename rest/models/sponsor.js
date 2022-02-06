@@ -7,6 +7,7 @@ const subscriberSchema = mongoose.Schema(
       index: true,
     },
     userId: { type: String, index: true },
+    avatarUrl: { type: String },
     subscriptionId: { type: String, index: true },
     paymentAccepted: { type: Boolean, index: true, default: false },
     contribution: { type: Number },
