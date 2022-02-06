@@ -89,7 +89,7 @@ app.get("/api/campaigns", async (req, res, next) => {
   }
 });
 
-app.get("/api/users/:id", async (req, res, next) => {
+app.get("/api/users/:id*", async (req, res, next) => {
   try {
     const sponsors = await Sponsor.find({
       userId: req.params.id,
@@ -179,9 +179,9 @@ app.post("/webhook", express.raw({ type: "*/*" }), async (req, res) => {
   }
 });
 
-app.get("/api/campaigns/:id/sponsors", async (req, res, next) => {
+app.get("/api/campaigns/:owner/:repo/sponsors", async (req, res, next) => {
   try {
-    const repoId = encodeURIComponent(req.params.id);
+    const repoId = encodeURIComponent(req.params.owner + "/" + req.params.repo)
     const sponsors = await Sponsor.find({ repoId });
     res.json(sponsors);
   } catch (e) {
@@ -190,9 +190,9 @@ app.get("/api/campaigns/:id/sponsors", async (req, res, next) => {
 });
 
 // Call this on
-app.post("/api/campaigns/:id/sponsor", async (req, res, next) => {
+app.post("/api/campaigns/:owner/:repo/sponsor", async (req, res, next) => {
   try {
-    const repoId = encodeURIComponent(req.params.id);
+    const repoId = encodeURIComponent(req.params.owner + "/" + req.params.repo)
     const amount = req.body.contribution;
     const customer = await stripe.customers.create();
     const price = await stripe.prices.create({
@@ -262,10 +262,10 @@ app.get("/github/contributions", async (req, res, next) => {
 });
 
 // dumb admin stuff
-app.post("/api/campaigns/:id/payout", async (req, res, next) => {
+app.post("/api/campaigns/:owner/:repo/payout", async (req, res, next) => {
   try {
     console.log("payout");
-    const repoId = encodeURIComponent(req.params.id);
+    const repoId = encodeURIComponent(req.params.owner + "/" + req.params.repo)
 
     const campaign = await Campaign.findOne({
       repoId,
@@ -319,9 +319,9 @@ app.post("/api/campaigns/:id/payout", async (req, res, next) => {
   }
 });
 
-app.get("/api/campaigns/:id", async (req, res, next) => {
+app.get("/api/campaigns/:owner/:repo", async (req, res, next) => {
   try {
-    const repoId = encodeURIComponent(req.params.id);
+    const repoId = encodeURIComponent(req.params.owner + "/" + req.params.repo)
     console.log("repoId", repoId);
     const campaign = await Campaign.findOne({
       repoId,
@@ -350,7 +350,7 @@ if (process.env.NODE_ENV === "production") {
   // Serve React production bundle
   app.use(express.static(path.join(__dirname, "build")));
   app.get("/*", (req, res) => {
-    res.sendFile(path.join(__dirname, "build", "index.html"));
+    return res.sendFile(path.join(__dirname, "build", "index.html"));
   });
 } else {
   app.get("/", (req, res) => {
