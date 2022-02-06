@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
-import Sidebar from '../components/sponsor/Sidebar'
+import Sidebar from '../components/sponsor/Sidebar';
 import { useAuth } from '../context/auth';
 import { Chart, ArcElement, Tooltip } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
@@ -26,7 +26,7 @@ const MainContent = styled.div`
   flex-grow: 1;
   max-width: 800px;
   margin: 0 auto;
-  margin-right: 0; 
+  margin-right: 0;
   margin-left: 48px;
 `;
 
@@ -56,13 +56,22 @@ const DisplayAllButt = styled.div`
   margin-top: -16px;
 `;
 
+const SponsorImageContainer = styled.div``;
+
+const SponsorImage = styled.img`
+  border-radius: 50%;
+  height: 48px;
+  width: 48px;
+  margin: 8px;
+`;
+
 const Campaign = () => {
   const { owner, repo } = useParams();
   const { getFile, getContributions } = useAuth();
   const [readme, setReadme] = useState('');
   const [contributors, setContributors] = useState([]);
   const [shownContributors, setShownContributors] = useState(2);
-
+  const [sponsors, setSponsors] = useState([]);
   const [data, setData] = useState({
     datasets: [{ data: [100], hoverOffset: 4 }],
     labels: ['hello world'],
@@ -70,7 +79,7 @@ const Campaign = () => {
 
   useEffect(() => {
     getContributions(owner, repo).then((c) => {
-      c = c.sort((a, b) => b.total - a.total)
+      c = c.sort((a, b) => b.total - a.total);
       setContributors(c);
       const nums = c.map((x) => x.total).slice(0, 6);
       const labels = c.map((x) => x.author.login).slice(0, 6);
@@ -86,8 +95,10 @@ const Campaign = () => {
         setReadme(atob(res.data.content));
       })
       .catch(() => {});
-
-    // calculations
+    const u = encodeURIComponent(owner + '/' + repo);
+    fetch('/campaigns/' + u + '/sponsors')
+      .then((r) => r.json())
+      .then(setSponsors);
   }, []);
 
   return (
@@ -102,7 +113,17 @@ const Campaign = () => {
             Your sponsorship will support the team behind <b>{repo}</b>.
           </Subtext>
           <Readme>{readme}</Readme>
-          <SectionTitle>XX sponsors are funding {repo}.</SectionTitle>
+          <SectionTitle>
+            {sponsors.length} sponsor{sponsors.length > 1? 's are':' is'} funding{' '}
+            {repo}.
+          </SectionTitle>
+          <SponsorImageContainer>
+            {sponsors.map((s) => (
+              <a href={`https://www.github.com/` + s.userId} alt={s.userId}>
+                <SponsorImage src={s.avatarUrl} />
+              </a>
+            ))}
+          </SponsorImageContainer>
           <SectionTitle>Contribution Chart</SectionTitle>
           <DoughnutContainer>
             <Doughnut data={data} />
@@ -122,7 +143,7 @@ const Campaign = () => {
             </DisplayAllButt>
           )}
         </MainContent>
-        <Sidebar/>
+        <Sidebar />
       </Container>
     </>
   );

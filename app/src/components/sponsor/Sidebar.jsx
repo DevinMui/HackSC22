@@ -6,7 +6,7 @@ import { useAuth } from '../../context/auth';
 import { H3, Subtext } from '../common/Text';
 import SponsorCard from './SponsorCard';
 
-const epsilon = 0.000000001
+const epsilon = 0.000000001;
 
 const Container = styled.div`
   margin-right: 24px;
@@ -66,11 +66,12 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const [campaign, setCampaign] = React.useState(null);
   const [hasClick, setHasClick] = React.useState(false);
+  const [avatarUrl, setAvatarUrl] = React.useState('');
 
   const onClick = (amt) => {
     if (hasClick) return;
     setHasClick(true);
-    sponsor(owner, repo, name, amt)
+    sponsor(owner, repo, name, amt, avatarUrl)
       .then((clientSecret) => {
         console.log(clientSecret);
         navigate(
@@ -83,9 +84,9 @@ const Sidebar = () => {
         setHasClick(false);
       });
   };
-
   React.useEffect(() => {
     auth.getName().then(setName);
+    auth.getImage().then(setAvatarUrl);
     fetch('/campaigns/' + encodeURIComponent(owner + '/' + repo))
       .then((r) => r.json())
       .then((j) => {
@@ -97,8 +98,8 @@ const Sidebar = () => {
     return (
       <Container>
         <H3>
-          {Math.round(campaign.sum / (campaign._doc.goal+epsilon))}% towards $
-          {campaign._doc.goal} per month goal
+          {Math.round(100 * (campaign.sum / (campaign._doc.goal + epsilon)))}%
+          towards ${Math.round(campaign._doc.goal / 100)} per month goal
         </H3>
         <H3>{name === owner ? 'Sponsor Tiers' : 'Select a tier'}</H3>
         <TierList>
@@ -114,7 +115,8 @@ const Sidebar = () => {
         </TierList>
       </Container>
     );
-  else if (name == owner)
+  //if (name == owner)
+  else
     return (
       <Container>
         <Inner>
@@ -123,11 +125,11 @@ const Sidebar = () => {
           <Input
             placeholder="$0.00"
             type="number"
-            onChange={(e) => setContribAmt(e.nativeEvent.data)}
+            onChange={(e) => setContribAmt(e.target.value)}
           ></Input>
           <Button
             onClick={() => {
-              if (!contribAmt)
+              if (!contribAmt || contribAmt <= 0)
                 return alert('Please start your campaign with a monthly goal!');
               if (hasClick) return;
               setHasClick(true);
@@ -159,7 +161,6 @@ const Sidebar = () => {
         </Inner>
       </Container>
     );
-  else return <></>;
 };
 
 export default Sidebar;

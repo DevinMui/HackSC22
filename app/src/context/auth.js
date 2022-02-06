@@ -89,6 +89,14 @@ const AuthProvider = ({ children }) => {
     }
   }
 
+  async function getImage() {
+    try {
+      return (await client.request('GET /user')).data.avatar_url;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -104,6 +112,7 @@ const AuthProvider = ({ children }) => {
         getContributions,
         getContributors,
         getFile,
+        getImage
       }}
     >
       {children}

@@ -1,4 +1,3 @@
-import React from 'react'
 import styled from 'styled-components'
 
 const RepoList = styled.div`
@@ -7,7 +6,6 @@ const RepoList = styled.div`
     max-width: inherit;
     overflow: auto;
     padding-top: 16px;
-    
     padding-bottom: 32px;
 `
 
