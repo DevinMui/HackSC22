@@ -1,5 +1,11 @@
 import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useNavigate,
+  useHref,
+} from 'react-router-dom';
 import './App.css';
 import { AuthProvider, useAuth } from './context/auth';
 import Dash from './screens/dash';
@@ -16,7 +22,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login_token" element={<GhRedirect />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login/:redirect" element={<Login />} />
+          <Route path="/login/" element={<Login />} />
           <Route
             path="/dash"
             element={
@@ -25,8 +32,22 @@ const App = () => (
               </RequireAuth>
             }
           />
-          <Route path="/campaigns/:owner/:repo" element={<Campaign />} />
-          <Route path="/campaign/:owner/:repo/sponsor" element={<Sponsor />} />
+          <Route
+            path="/campaigns/:owner/:repo"
+            element={
+              <RequireAuth>
+                <Campaign />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/campaign/:owner/:repo/sponsor"
+            element={
+              <RequireAuth>
+                <Sponsor />
+              </RequireAuth>
+            }
+          />
         </Routes>
       </div>
     </BrowserRouter>
@@ -38,7 +59,8 @@ const RequireAuth = ({ children }) => {
   const nav = useNavigate();
 
   useEffect(() => {
-    if (!auth.user) nav('/login');
+    console.log(window.location.pathname);
+    if (!auth.user) nav('/login/' + btoa(window.location.pathname));
   }, []);
 
   if (!auth.user) {
