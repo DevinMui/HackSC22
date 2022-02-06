@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import NavBar from '../components/common/NavBar';
-import { H1 } from '../components/common/Text';
+import { H1, Subtext } from '../components/common/Text';
 import RepoCard from '../components/common/RepoCard';
 import RepoList from '../components/dash/RepoList';
 import Sidebar from '../components/dash/Sidebar';
@@ -16,18 +16,45 @@ const Repos = styled.div`
   overflow: auto;
 `;
 
-const Dash = () => {
-  const { getName, getRepos } = useAuth();
-  const [name, setName] = React.useState('');
-  const [repos, setRepos] = React.useState([]);
+function getRepos(names) {
+  return Promise.all(
+    names.map((name) =>
+      fetch(`https://api.github.com/repos/${name}`, {
+        headers: { Accept: 'application/vnd.github.v3+json' },
+      }).then((r) => r.json())
+    )
+  );
+}
 
-  useEffect(() => {
+const Dash = () => {
+  const { getName } = useAuth();
+  const [name, setName] = React.useState('');
+  const [highlights, setHighlights] = React.useState([]);
+  const [explore, setExplore] = React.useState([]);
+  const [funded, setFunded] = React.useState([]);
+
+  React.useEffect(() => {
     getName().then(setName);
   }, []);
 
-  useEffect(() => {
-    getRepos().then(setRepos);
-  }, []);
+  React.useEffect(() => {
+    if (!name) return;
+    fetch(`/campaigns?userId=${name}&type=MINE`)
+      .then((r) => r.json())
+      .then((j) => j.map((i) => decodeURIComponent(i.repoId)))
+      .then((x) => getRepos(x))
+      .then((z) => setHighlights(z));
+    fetch(`/campaigns?userId=${name}&type=EXPLORE`)
+      .then((r) => r.json())
+      .then((j) => j.map((i) => decodeURIComponent(i.repoId)))
+      .then((x) => getRepos(x))
+      .then((z) => setExplore(z));
+    fetch(`/campaigns?userId=${name}&type=SUBSCRIBED`)
+      .then((r) => r.json())
+      .then((j) => j.map((i) => decodeURIComponent(i.repoId)))
+      .then((x) => getRepos(x))
+      .then((z) => setFunded(z));
+  }, [name]);
 
   return (
     <>
@@ -37,7 +64,8 @@ const Dash = () => {
         <Repos>
           <H1>Your Highlights</H1>
           <RepoList>
-            {repos.map((repo) => (
+            {!highlights.length && <Subtext>Nothing here...yet!</Subtext>}
+            {highlights.map((repo) => (
               <RepoCard
                 key={repo.id}
                 to={`/campaigns/${repo.full_name}`}
@@ -52,7 +80,8 @@ const Dash = () => {
           </RepoList>
           <H1>Explore New Projects</H1>
           <RepoList>
-            {repos.map((repo) => (
+            {!explore.length && <Subtext>Nothing here...yet!</Subtext>}
+            {explore.map((repo) => (
               <RepoCard
                 key={repo.id}
                 to={`/campaigns/${repo.full_name}`}
@@ -67,7 +96,8 @@ const Dash = () => {
           </RepoList>
           <H1>Projects You Funded</H1>
           <RepoList>
-            {repos.map((repo) => (
+            {!funded.length && <Subtext>Nothing here...yet!</Subtext>}
+            {funded.map((repo) => (
               <RepoCard
                 key={repo.id}
                 to={`/campaigns/${repo.full_name}`}

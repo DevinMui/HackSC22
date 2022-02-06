@@ -54,11 +54,15 @@ const Sidebar = () => {
   const auth = useAuth();
   const [name, setName] = React.useState('');
   const [img, setImg] = React.useState('');
+  const [repos, setRepos] = React.useState([]);
+  
+  React.useEffect(() => {
+    auth.getRepos().then(setRepos);
+  }, []);
 
   React.useEffect(() => {
     auth.getName().then(setName);
   }, []);
-
   React.useEffect(() => auth.getUserImage().then(setImg), []);
   return (
     <Container>
@@ -67,15 +71,12 @@ const Sidebar = () => {
       </D>
       <D>
         <H3>Repositories</H3>
-        <AddButton>
-          <PlusOutlined />
-        </AddButton>
       </D>
-      {'helloworld'.split('').map((i, _) => (
-        <D key={i}>
+      {repos.slice(0, 10).map((repo, _) => (
+        <D key={repo.id}>
           <RepoLink to="/">
             <FolderOpenOutlined />
-            longnamlongnamelongnamelongnamelongnamee
+            {repo.name}
           </RepoLink>
         </D>
       ))}

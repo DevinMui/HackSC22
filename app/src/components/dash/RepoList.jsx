@@ -8,7 +8,7 @@ const RepoList = styled.div`
     overflow: auto;
     padding-top: 16px;
     
-    padding-bottom: 16px;
+    padding-bottom: 32px;
 `
 
 export default RepoList

@@ -68,7 +68,7 @@ const Sidebar = () => {
   const onClick = (amt) => {
     if (hasClick) return;
     setHasClick(true);
-    sponsor(owner, repo, amt)
+    sponsor(owner, repo, name, amt)
       .then((clientSecret) => {
         console.log(clientSecret);
         navigate(

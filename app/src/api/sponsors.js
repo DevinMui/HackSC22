@@ -1,4 +1,4 @@
-async function sponsor(owner, repo, contribution) {
+async function sponsor(owner, repo, userId, contribution) {
   // Attempts to create monthly sponsorship with amount to repo
   const res = await fetch(
     `/campaigns/${encodeURIComponent(owner + '/' + repo)}/sponsor`,
@@ -8,7 +8,11 @@ async function sponsor(owner, repo, contribution) {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ contribution }),
+      body: JSON.stringify({
+        contribution,
+        repoId: encodeURIComponent(owner + '/' + repo),
+        userId,
+      }),
     }
   );
   console.log(owner, repo, contribution);

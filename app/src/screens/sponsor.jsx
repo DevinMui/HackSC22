@@ -56,7 +56,7 @@ const Sponsor = () => {
   const { owner, repo } = useParams();
   const query = useQuery();
   const clientSecret = query.get('clientSecret');
-  const amt = query.get('amt');
+  const amt = query.get('amnt');
   // passed from the server
   const opt = {
     clientSecret,
