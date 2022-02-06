@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import styled from 'styled-components';
+import Sidebar from '../components/sponsor/Sidebar'
 import { useAuth } from '../context/auth';
 import { Chart, ArcElement, Tooltip } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
@@ -25,6 +26,8 @@ const MainContent = styled.div`
   flex-grow: 1;
   max-width: 800px;
   margin: 0 auto;
+  margin-right: 0; 
+  margin-left: 48px;
 `;
 
 const SpecialFolderIcon = styled(FolderOpenOutlined)`
@@ -67,10 +70,10 @@ const Campaign = () => {
 
   useEffect(() => {
     getContributions(owner, repo).then((c) => {
-      console.log(c[0]);
-      setContributors(c.sort((a, b) => b.total - a.total));
-      const nums = c.map((x) => x.total);
-      const labels = c.map((x) => x.author.login);
+      c = c.sort((a, b) => b.total - a.total)
+      setContributors(c);
+      const nums = c.map((x) => x.total).slice(0, 6);
+      const labels = c.map((x) => x.author.login).slice(0, 6);
       setData({ datasets: [{ data: nums }], labels });
     });
     getFile(owner, repo, 'README')
@@ -119,6 +122,7 @@ const Campaign = () => {
             </DisplayAllButt>
           )}
         </MainContent>
+        <Sidebar/>
       </Container>
     </>
   );

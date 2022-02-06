@@ -1,5 +1,6 @@
 import { useMemo, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
+import styled from 'styled-components';
 import {
   Elements,
   PaymentElement,
@@ -7,8 +8,15 @@ import {
   useElements,
 } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
+import { H2 } from '../components/common/Text';
+import NavBar from '../components/common/NavBar';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+
+const Container = styled.div`
+  max-width: 800px;
+  margin: 0 auto;
+`;
 
 function useQuery() {
   const { search } = useLocation();
@@ -45,19 +53,32 @@ const CheckoutForm = () => {
 };
 
 const Sponsor = () => {
-  const { id } = useParams();
+  const { owner, repo } = useParams();
   const query = useQuery();
   const clientSecret = query.get('clientSecret');
-
+  const amt = query.get('amt');
   // passed from the server
   const opt = {
     clientSecret,
   };
 
   return (
-    <Elements stripe={stripePromise} options={opt}>
-      <CheckoutForm />
-    </Elements>
+    <>
+      <NavBar />
+      <Container>
+        <H2>
+          Support {owner}/{repo} for{' '}
+          {(amt / 100).toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+          })}{' '}
+          a month.
+        </H2>
+        <Elements stripe={stripePromise} options={opt}>
+          <CheckoutForm />
+        </Elements>
+      </Container>
+    </>
   );
 };
 

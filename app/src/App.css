@@ -1,4 +1,21 @@
 ::-webkit-scrollbar {
-    width: 0;  /* Remove scrollbar space */
-    background: transparent;  /* Optional: just make scrollbar invisible */
+  width: 0; /* Remove scrollbar space */
+  background: transparent; /* Optional: just make scrollbar invisible */
+}
+
+button {
+  background-color: hsla(135, 48%, 57%, 1);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-family: 'Helvetica Neue', sans-serif;
+  width: 114px;
+  height: 35px;
+  cursor: pointer;
+  margin-top: 16px;
+  width: 100%;
+  /* Green */
+
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.12);
+  border-radius: 5px;
 }
