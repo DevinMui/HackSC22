@@ -229,7 +229,6 @@ app.get("/github/contributions", async (req, res, next) => {
     });
     const json = await b.json();
     console.log(url);
-    console.log(JSON.stringify(json));
     res.send(json);
   } catch (e) {
     next(e);

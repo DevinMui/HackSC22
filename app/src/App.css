@@ -3,6 +3,10 @@
   background: transparent; /* Optional: just make scrollbar invisible */
 }
 
+* {
+  transition: 0.25s;
+}
+
 button {
   background-color: hsla(135, 48%, 57%, 1);
   color: white;

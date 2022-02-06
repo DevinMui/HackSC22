@@ -26,16 +26,16 @@ const GhRedirect = () => {
         window
           .setTimeout(() => {
             navigate(redir);
-          }, 2000)
+          }, 500)
           .catch(() => {
             setMessage('Login unsuccessful, redirecting...');
             auth.logout();
-            window.setTimeout(() => navigate('/'), 2000);
+            window.setTimeout(() => navigate('/'), 500);
           });
       });
     } else {
       auth.logout();
-      window.setTimeout(() => navigate(-2), 2000);
+      window.setTimeout(() => navigate(-2), 500);
     }
   }, [window.location.href]);
   // If Github API returns the code parameter

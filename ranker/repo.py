@@ -18,7 +18,7 @@ class Repo:
     def clone(self):
         cmd = f"git clone {self.url}".split(" ")
         subprocess.Popen(cmd, cwd=baseDir).wait()
-        self.path = baseDir + name
+        self.path = baseDir + self.name
 
     def pull(self):
         cmd = "git pull".split(" ")
