@@ -86,8 +86,11 @@ const Sidebar = () => {
     auth.getName().then(setName);
     fetch('/campaigns/' + encodeURIComponent(owner + '/' + repo))
       .then((r) => r.json())
-      .then((j) => (j.error ? setCampaign(null) : setCampaign(j)));
-  }, []);
+      .then((j) => {
+        console.log({ j });
+        j.error ? setCampaign(null) : setCampaign(j);
+      });
+  }, [owner, repo]);
   if (campaign)
     return (
       <Container>
@@ -132,7 +135,7 @@ const Sidebar = () => {
                   repoId: encodeURIComponent(owner + '/' + repo),
                   goal: 100 * Math.floor(contribAmt),
                   url: `git@github.com:${owner}/${repo}.git`,
-                  name: owner + '/' + repo,
+                  name: repo,
                 }),
               })
                 .then(() => {

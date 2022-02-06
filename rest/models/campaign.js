@@ -6,6 +6,7 @@ const campaignSchema = mongoose.Schema(
       type: String,
       index: true,
     },
+    path: { type: String },
     goal: Number,
   },
   {

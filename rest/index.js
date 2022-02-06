@@ -97,11 +97,15 @@ app.get("/users/:id", async (req, res, next) => {
 app.post("/campaigns", async (req, res, next) => {
   try {
     // is this inefficient? yes. do i care? no
-    const { path } = await repo.rank({
+    // const { path } = await repo.rank({
+    await repo.rank({
       name: req.body.name,
       url: req.body.url,
     });
-    const campaign = await new Campaign({ ...req.body, path }).save();
+    const campaign = await new Campaign({
+      ...req.body,
+      path: "repos/" + req.body.name,
+    }).save();
     res.json(campaign);
   } catch (e) {
     next(e);
@@ -234,7 +238,7 @@ app.get("/github/contributions", async (req, res, next) => {
 // dumb admin stuff
 app.post("/campaigns/:id/payout", async (req, res, next) => {
   try {
-    const repoId = req.params.id;
+    const repoId = encodeURIComponent(req.params.id);
 
     const campaign = await Campaign.findOne({
       repoId,
@@ -276,10 +280,15 @@ app.post("/campaigns/:id/payout", async (req, res, next) => {
 
 app.get("/campaigns/:id", async (req, res, next) => {
   try {
+    const repoId = encodeURIComponent(req.params.id);
+    console.log("repoId", repoId);
     const campaign = await Campaign.findOne({
-      repoId: req.params.id,
+      repoId,
     });
 
+    if (campaign === null) throw "campaign not found";
+
+    console.log("campaign", campaign);
     const { rank } = await repo.rank({
       path: campaign.path,
     });
