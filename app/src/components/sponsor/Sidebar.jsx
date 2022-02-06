@@ -110,7 +110,7 @@ const Sidebar = () => {
       <Container>
         <Inner>
           <H3>Start raising money for {repo}</H3>
-          <Subtext>Set your monthly contribution goal</Subtext>
+          <Subtext>Set your monthly contribution goal (USD)</Subtext>
           <Input
             placeholder="$0.00"
             type="number"
@@ -120,14 +120,8 @@ const Sidebar = () => {
             onClick={() => {
               if (!contribAmt)
                 return alert('Please start your campaign with a monthly goal!');
-              console.log(
-                JSON.stringify({
-                  repoId: encodeURIComponent(owner + '/' + repo),
-                  goal: 100 * Math.floor(contribAmt),
-                  url: `git@github.com:${owner}/${repo}.git`,
-                  name: owner + '/' + repo,
-                })
-              );
+              if (hasClick) return;
+              setHasClick(true);
               fetch('/campaigns', {
                 method: 'POST',
                 headers: {
@@ -140,7 +134,15 @@ const Sidebar = () => {
                   url: `git@github.com:${owner}/${repo}.git`,
                   name: owner + '/' + repo,
                 }),
-              });
+              })
+                .then(() => {
+                  window.location.reload();
+                  setHasClick(false);
+                })
+                .catch(() => {
+                  alert('Error starting your campaign.');
+                  setHasClick(false);
+                });
             }}
           >
             Start
