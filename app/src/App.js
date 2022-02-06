@@ -14,6 +14,7 @@ import Landing from './screens/landing';
 import Login from './screens/login';
 import Campaign from './screens/campaign';
 import Sponsor from './screens/sponsor';
+import Admin from './screens/admin';
 
 const App = () => (
   <AuthProvider>
@@ -45,6 +46,14 @@ const App = () => (
             element={
               <RequireAuth>
                 <Sponsor />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/campaigns/:owner/:repo/admin"
+            element={
+              <RequireAuth>
+                <Admin />
               </RequireAuth>
             }
           />
