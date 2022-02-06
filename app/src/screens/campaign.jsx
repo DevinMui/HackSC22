@@ -96,7 +96,7 @@ const Campaign = () => {
             Sponsor <SpecialFolderIcon /> {owner}/{repo}
           </H1>
           <Subtext>
-            Your sponsorship will hell support the team behind <b>{repo}</b>.
+            Your sponsorship will support the team behind <b>{repo}</b>.
           </Subtext>
           <Readme>{readme}</Readme>
           <SectionTitle>XX sponsors are funding {repo}.</SectionTitle>
@@ -113,7 +113,7 @@ const Campaign = () => {
           {contributors.slice(0, shownContributors).map((contributor) => (
             <ContributorCard key={contributor.author.id} item={contributor} />
           ))}
-          {contributors.length >= shownContributors && (
+          {contributors.length > shownContributors && (
             <DisplayAllButt onClick={() => setShownContributors(200)}>
               <EllipsisOutlined />
             </DisplayAllButt>
